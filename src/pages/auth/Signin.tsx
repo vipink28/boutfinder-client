@@ -23,9 +23,6 @@ type FormData = {
   email: string
   password: string
 }
-const handleVerifyEmail = async () => {
-  sessionStorage.removeItem("justRegistered") // Remove flag after verification
-}
 
 const Signin = () => {
   const [showPassword, setShowPassword] = useState(false)
@@ -45,14 +42,18 @@ const Signin = () => {
   const onSubmit: SubmitHandler<FormData> = async data => {
     try {
       const response = await login(data).unwrap()
-      if (response.RedirectTo) {
-        navigate(`/${response.RedirectTo}`)
+
+      // Store token and user in Redux
+      dispatch(setCredentials({ token: response.token, user: response.user }))
+
+      // Navigate to the correct page
+      if (response.redirectTo) {
+        navigate(`/${response.redirectTo}`)
       } else {
         navigate("/dashboard")
       }
-      dispatch(setCredentials({ user: null, token: response.token }))
     } catch (err) {
-      // Handle server-side errors
+      console.error("Login error:", err)
       setFormError("root", {
         type: "manual",
         message: "Invalid email or password. Please try again.",

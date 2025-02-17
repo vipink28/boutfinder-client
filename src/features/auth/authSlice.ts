@@ -1,15 +1,23 @@
 import { createSlice } from "@reduxjs/toolkit"
 
+interface User {
+  isEmailVerified: boolean
+  clubId: string | null
+  isClubApproved: boolean
+  stripeSubscriptionId: string
+  isMemberActive: boolean
+}
+
 interface AuthState {
-  user: null | any
+  user: User | null
   token: string | null
   isAuthenticated: boolean
 }
 
 const initialState: AuthState = {
   user: null,
-  token: null,
-  isAuthenticated: false,
+  token: localStorage.getItem("token"),
+  isAuthenticated: !!localStorage.getItem("token"),
 }
 
 export const authSlice = createSlice({
@@ -17,8 +25,8 @@ export const authSlice = createSlice({
   initialState,
   reducers: create => ({
     setCredentials: (state, action) => {
-      const { user, token } = action.payload
-      state.user = user
+      const { token, user } = action.payload
+      state.user = user?.user ?? user
       state.token = token
       state.isAuthenticated = true
       localStorage.setItem("token", token)

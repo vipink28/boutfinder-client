@@ -1,11 +1,19 @@
-// Need to use the React-specific entry point to import `createApi`
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react"
+import { RootState } from "../app/store"
+
+interface UserStatus {
+  isEmailVerified: boolean
+  clubId: string | null
+  isClubApproved: boolean
+  stripeSubscriptionId: string
+  isMemberActive: boolean
+}
 
 export const authApi = createApi({
   baseQuery: fetchBaseQuery({
     baseUrl: "https://localhost:53166/api/Auth",
-    prepareHeaders: headers => {
-      const token = localStorage.getItem("token")
+    prepareHeaders: (headers, { getState }) => {
+      const token = (getState() as RootState).auth.token
       if (token) {
         headers.set("Authorization", `Bearer ${token}`)
       }
@@ -21,9 +29,12 @@ export const authApi = createApi({
         body: credentials,
       }),
     }),
-    login: builder.mutation({
+    login: builder.mutation<
+      { token: string; user: any; redirectTo: string },
+      { email: string; password: string }
+    >({
       query: credentials => ({
-        url: "/Login",
+        url: "/login",
         method: "POST",
         body: credentials,
       }),
@@ -45,11 +56,30 @@ export const authApi = createApi({
     checkEmail: builder.query<{ exists: boolean; message: string }, string>({
       query: email => `/CheckEmail?email=${email}`,
     }),
-    getUserStatus: builder.query<{ RedirectTo: string; Message: string }, void>(
+    getUserStatus: builder.query<
       {
-        query: () => "/UserStatus",
+        RedirectTo: string
+        Message: string
+        isEmailVerified: boolean
+        clubId: string | null
+        isClubApproved: boolean
+        stripeSubscriptionId: string
+        isMemberActive: boolean
       },
-    ),
+      void
+    >({
+      query: () => "/UserStatus",
+    }),
+    createSubscription: builder.mutation<
+      { url: string },
+      { email: string; priceId: string }
+    >({
+      query: ({ email, priceId }) => ({
+        url: "/create-subscription",
+        method: "POST",
+        body: { email, priceId },
+      }),
+    }),
   }),
 })
 
@@ -60,4 +90,5 @@ export const {
   useGetUserStatusQuery,
   useResendEmailVerificationMutation,
   useVerifyEmailMutation,
+  useCreateSubscriptionMutation,
 } = authApi

@@ -1,39 +1,55 @@
 import { CheckCircle, Mail } from "lucide-react"
 import { useEffect, useRef, useState } from "react"
-import { useNavigate } from "react-router"
+import { useDispatch } from "react-redux"
+import { Link, useNavigate } from "react-router"
 import {
+  useGetUserStatusQuery,
   useResendEmailVerificationMutation,
   useVerifyEmailMutation,
 } from "../../api/authApi"
+import { setCredentials } from "../../features/auth/authSlice"
+import { getEmailFromToken } from "../../utils/authUtils"
 
 const PinVerfication = () => {
   const [pin, setPin] = useState(["", "", "", ""])
   const [isVerified, setIsVerified] = useState(false)
   const inputRefs = useRef<(HTMLInputElement | null)[]>([])
+  const token = localStorage.getItem("token")
   const [email, setEmail] = useState("")
   const [error, setError] = useState("")
+  const { refetch } = useGetUserStatusQuery(undefined, { skip: !token })
   const navigate = useNavigate()
 
   const [verifyEmail] = useVerifyEmailMutation()
   const [resendEmail] = useResendEmailVerificationMutation()
 
-  useEffect(() => {
-    const justRegistered = sessionStorage.getItem("justRegistered")
+  const dispatch = useDispatch()
 
+  useEffect(() => {
     const token = localStorage.getItem("token")
+    const justRegistered = sessionStorage.getItem("justRegistered")
 
     if (justRegistered) {
       // User came from registration
-      const registeredEmail = justRegistered ? JSON.parse(justRegistered) : null
+      const registeredEmail = JSON.parse(justRegistered)
       if (registeredEmail) {
         setEmail(registeredEmail.email)
       } else {
         navigate("/signup") // Redirect if email is missing
       }
     } else if (token) {
-      // User is logged in (extract email from token)
-      const payload = JSON.parse(atob(token.split(".")[1])) // Decode JWT payload
-      setEmail(payload.email)
+      try {
+        const extractedEmail = getEmailFromToken(token)
+        if (extractedEmail) {
+          setEmail(extractedEmail)
+        } else {
+          navigate("/login") // Redirect if email is missing in token
+        }
+      } catch (error) {
+        console.error("Error decoding token:", error)
+        navigate("/login") // Redirect if token is invalid
+      }
+
       sessionStorage.removeItem("justRegistered") // Clean up session storage
     } else {
       navigate("/login") // Redirect if not logged in
@@ -85,10 +101,20 @@ const PinVerfication = () => {
       const response = await verifyEmail({ email, code }).unwrap()
       if (response.statusCode === 200) {
         setIsVerified(true)
-        sessionStorage.removeItem("justRegistered") // Clean up session storage
-        setTimeout(() => {
-          navigate("/add-club") // Redirect after successful verification
-        }, 3000) // Show success state for 1 second
+        sessionStorage.removeItem("justRegistered")
+        refetch() // ✅ Force re-fetch user status
+          .then(({ data }) => {
+            if (data) {
+              dispatch(setCredentials({ token, user: data })) // ✅ Update Redux state
+              setTimeout(() => {
+                if (data.RedirectTo === "add-club") {
+                  navigate("/subscribe") // Redirect to subscription check before club
+                } else {
+                  navigate(`/login`)
+                }
+              }, 3000) // Show success state for 1 second
+            }
+          })
       }
     } catch (err) {
       setError("Invalid verification code. Please try again.")
@@ -190,9 +216,12 @@ const PinVerfication = () => {
             Continue
           </button> */}
 
-          <button className="mt-4 text-sm text-gray-600 hover:text-gray-900">
+          <Link
+            to="/login"
+            className="mt-4 text-sm cursor-pointer text-gray-600 hover:text-gray-900"
+          >
             Back to log in
-          </button>
+          </Link>
         </div>
       )}
     </div>
