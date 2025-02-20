@@ -1,4 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit"
+import { jwtDecode } from "jwt-decode"
+import { getRoleFromToken } from "../../utils/authUtils"
 
 interface User {
   isEmailVerified: boolean
@@ -13,12 +15,14 @@ interface AuthState {
   user: User | null
   token: string | null
   isAuthenticated: boolean
+  userRole: string | null
 }
 
 const initialState: AuthState = {
   user: null,
   token: localStorage.getItem("token"),
   isAuthenticated: !!localStorage.getItem("token"),
+  userRole: null,
 }
 
 export const authSlice = createSlice({
@@ -27,10 +31,12 @@ export const authSlice = createSlice({
   reducers: create => ({
     setCredentials: (state, action) => {
       const { token, user } = action.payload
+      const tokenDecode = jwtDecode(token)
       state.user = user?.user ?? user
       state.token = token
       state.isAuthenticated = true
       localStorage.setItem("token", token)
+      state.userRole = getRoleFromToken(token)
     },
     logout: state => {
       state.user = null

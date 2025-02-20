@@ -13,7 +13,7 @@ import { useNavigate } from "react-router"
 import { useLazyGetUserStatusQuery } from "../../api/authApi"
 import { useCreateClubMutation } from "../../api/clubApi"
 import { RootState } from "../../app/store"
-import Section from "../../components/Section"
+import Section from "../../components/club/Section"
 import { setCredentials } from "../../features/auth/authSlice"
 import { postCodeLookup } from "../../utils/postcodeLookup"
 
@@ -73,13 +73,25 @@ const ClubRegistration = () => {
 
   const onSubmit = async (data: any) => {
     setApiError(null)
-    const requestData = {
-      ...data,
-      userId,
+    const formData = new FormData()
+    formData.append("ClubName", data.clubName)
+    formData.append("ClubRegion", data.clubRegion)
+    formData.append("Postcode", data.postcode)
+    formData.append("ClubAddress", data.clubAddress)
+    formData.append("ClubPrimaryContactName", data.clubPrimaryContactName)
+    formData.append("ClubPrimaryContactNumber", data.clubPrimaryContactNumber)
+    formData.append("CfoName", data.cfoName)
+    formData.append("CfoEmail", data.cfoEmail)
+    formData.append("CmmName", data.cmmName)
+    formData.append("CmmEmail", data.cmmEmail)
+    formData.append("CmmContactNumber", data.cmmContactNumber)
+    formData.append("UserId", userId)
+    if (data.clubLogo[0]) {
+      formData.append("ClubLogo", data.clubLogo[0])
     }
 
     try {
-      const response = await createClub(requestData).unwrap()
+      const response = await createClub(formData).unwrap()
       if (response.status) {
         alert("Club successfully registered!")
         const updatedUserStatus = await fetchUserStatus().unwrap()
@@ -366,7 +378,12 @@ const ClubRegistration = () => {
                   SVG, PNG, JPG or GIF (max. 800x800px)
                 </p>
               </div>
-              <input id="dropzone-file" type="file" className="hidden" />
+              <input
+                {...register("clubLogo")}
+                id="dropzone-file"
+                type="file"
+                className="hidden"
+              />
             </label>
           </div>
         </Section>

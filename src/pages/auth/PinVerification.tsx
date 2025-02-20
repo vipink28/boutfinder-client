@@ -102,19 +102,18 @@ const PinVerfication = () => {
       if (response.statusCode === 200) {
         setIsVerified(true)
         sessionStorage.removeItem("justRegistered")
-        refetch() // ✅ Force re-fetch user status
-          .then(({ data }) => {
-            if (data) {
-              dispatch(setCredentials({ token, user: data })) // ✅ Update Redux state
-              setTimeout(() => {
-                if (data.RedirectTo === "add-club") {
-                  navigate("/subscribe") // Redirect to subscription check before club
-                } else {
-                  navigate(`/login`)
-                }
-              }, 3000) // Show success state for 1 second
-            }
-          })
+        refetch().then(({ data }) => {
+          if (data) {
+            dispatch(setCredentials({ token, user: data }))
+            setTimeout(() => {
+              if (data.RedirectTo === "add-club") {
+                navigate("/subscribe")
+              } else {
+                navigate(`/login`)
+              }
+            }, 3000)
+          }
+        })
       }
     } catch (err) {
       setError("Invalid verification code. Please try again.")
@@ -125,7 +124,7 @@ const PinVerfication = () => {
     try {
       const response = await resendEmail({ email }).unwrap()
       if (response.statusCode === 200) {
-        setError("") // Clear any previous errors
+        setError("")
         alert("Verification code resent successfully.")
       }
     } catch (err) {

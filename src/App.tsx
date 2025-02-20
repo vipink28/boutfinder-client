@@ -12,13 +12,15 @@ const App = () => {
   const dispatch = useDispatch()
   const token = useSelector((state: RootState) => state.auth.token)
   const user = useSelector((state: RootState) => state.auth.user)
+  const userRole = useSelector((state: RootState) => state.auth.userRole)
 
   const {
     data: userStatus,
     isLoading,
     error,
   } = useGetUserStatusQuery(undefined, {
-    skip: !token || !!user, // Prevent API call if user is not logged in
+    skip: !token || !!user,
+    // Prevent API call if user is not logged in
   })
 
   const publicRoutes = [
@@ -27,7 +29,6 @@ const App = () => {
     "/verify-email",
     "/forgot-password",
     "/reset-password",
-    "/admin",
   ]
 
   useEffect(() => {
@@ -39,20 +40,23 @@ const App = () => {
   }, [userStatus, dispatch, token, user])
 
   useEffect(() => {
-    if (token && user) {
-      if (!user.isEmailVerified) {
+    if (token && user && userRole) {
+      const isAdmin = userRole === "Admin"
+      if (isAdmin) {
+        navigate("/admin")
+      } else if (!user.isEmailVerified) {
         navigate("/verify-email")
       } else if (!user.clubId) {
-        navigate("/admin")
+        navigate("/add-club")
       } else if (!user.isClubApproved) {
         navigate("/membership-status")
       } else {
-        navigate("/dashboard")
+        navigate("/club")
       }
     } else if (!token && !publicRoutes.includes(location.pathname)) {
       navigate("/login")
     }
-  }, [token, user, navigate, location.pathname])
+  }, [token, user, userRole, navigate, location.pathname])
 
   useEffect(() => {
     if (error && "status" in error && error.status === 401) {

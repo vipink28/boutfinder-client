@@ -7,7 +7,7 @@ export const AddClubRoute = ({ children }: { children: JSX.Element }) => {
 
   if (!userStatus) return <Navigate to="/login" />
   if (!userStatus.isEmailVerified) return <Navigate to="/verify-email" />
-  if (userStatus.clubId) return <Navigate to="/dashboard" />
+  if (userStatus.clubId) return <Navigate to="/club" />
 
   return children
 }

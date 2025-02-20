@@ -50,7 +50,7 @@ const Signin = () => {
       if (response.redirectTo) {
         navigate(`/${response.redirectTo}`)
       } else {
-        navigate("/dashboard")
+        navigate("/club")
       }
     } catch (err) {
       console.error("Login error:", err)
@@ -65,7 +65,7 @@ const Signin = () => {
     <div className="min-h-screen flex flex-col justify-start bg-gray-50 px-4 sm:px-6 lg:px-8">
       <div className="w-full max-w-md mx-auto mt-8 sm:mt-12">
         <div>
-          <h1 className="font-extrabold text-4xl text-center">
+          <h1 className="font-black font-montserrat text-4xl text-center">
             <span className="text-primary-500">BOUT</span>
             <span className="text-gray-900">FINDER</span>
           </h1>

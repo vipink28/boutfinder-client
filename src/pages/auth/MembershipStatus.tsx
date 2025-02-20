@@ -13,7 +13,7 @@ const MembershipStatus = () => {
       <header className="bg-white border-b border-b-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            <h1 className="font-black text-2xl">
+            <h1 className="font-black font-montserrat text-2xl">
               <span className="text-primary-500">BOUT</span>
               <span className="text-gray-900">FINDER</span>
             </h1>
