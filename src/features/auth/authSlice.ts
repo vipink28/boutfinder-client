@@ -6,6 +6,7 @@ interface User {
   isClubApproved: boolean
   stripeSubscriptionId: string
   isMemberActive: boolean
+  userId: number
 }
 
 interface AuthState {

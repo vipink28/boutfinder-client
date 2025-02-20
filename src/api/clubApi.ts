@@ -2,30 +2,23 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react"
 
 export const clubApi = createApi({
   reducerPath: "clubApi",
-  baseQuery: fetchBaseQuery({ baseUrl: "/api/club" }),
+  baseQuery: fetchBaseQuery({
+    baseUrl: "https://localhost:53166/api/Club",
+    prepareHeaders: (headers, { getState }) => {
+      const token = (getState() as any).auth.token
+      if (token) headers.set("Authorization", `Bearer ${token}`)
+      return headers
+    },
+  }),
   endpoints: build => ({
-    registerClub: build.mutation({
-      query: clubDetails => ({
-        url: "/register",
+    createClub: build.mutation({
+      query: clubData => ({
+        url: "/create",
         method: "POST",
-        body: clubDetails,
+        body: clubData,
       }),
-    }),
-    updateClub: build.mutation({
-      query: clubDetails => ({
-        url: "/update",
-        method: "PUT",
-        body: clubDetails,
-      }),
-    }),
-    getMembershipStatus: build.query({
-      query: () => "/membership-status",
     }),
   }),
 })
 
-export const {
-  useRegisterClubMutation,
-  useUpdateClubMutation,
-  useGetMembershipStatusQuery,
-} = clubApi
+export const { useCreateClubMutation } = clubApi

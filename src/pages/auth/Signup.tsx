@@ -5,7 +5,7 @@ import { useLazyCheckEmailQuery, useRegisterMutation } from "../../api/authApi"
 import { useState } from "react"
 import { SubmitHandler, useForm } from "react-hook-form"
 import { useDispatch } from "react-redux"
-import { useNavigate } from "react-router"
+import { Link, useNavigate } from "react-router"
 
 interface ErrorResponse {
   message?: string
@@ -180,12 +180,12 @@ const Signup = () => {
           <div className="mt-6 text-center">
             <p className="text-gray-600">
               Already have an account?{" "}
-              <button
-                onClick={() => navigate("/login")}
+              <Link
+                to="/login"
                 className="text-primary-500 hover:text-primary-500/90 font-medium"
               >
                 Log in
-              </button>
+              </Link>
             </p>
           </div>
         </div>

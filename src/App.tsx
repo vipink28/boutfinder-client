@@ -26,7 +26,8 @@ const App = () => {
     "/login",
     "/verify-email",
     "/forgot-password",
-    "/change-password",
+    "/reset-password",
+    "/admin",
   ]
 
   useEffect(() => {
@@ -42,7 +43,7 @@ const App = () => {
       if (!user.isEmailVerified) {
         navigate("/verify-email")
       } else if (!user.clubId) {
-        navigate("/add-club")
+        navigate("/admin")
       } else if (!user.isClubApproved) {
         navigate("/membership-status")
       } else {

@@ -7,6 +7,7 @@ interface UserStatus {
   isClubApproved: boolean
   stripeSubscriptionId: string
   isMemberActive: boolean
+  userId: number
 }
 
 export const authApi = createApi({
@@ -65,6 +66,7 @@ export const authApi = createApi({
         isClubApproved: boolean
         stripeSubscriptionId: string
         isMemberActive: boolean
+        userId: number
       },
       void
     >({
@@ -72,12 +74,33 @@ export const authApi = createApi({
     }),
     createSubscription: builder.mutation<
       { url: string },
-      { email: string; priceId: string }
+      { email: string; priceTableId: string }
     >({
-      query: ({ email, priceId }) => ({
+      query: ({ email, priceTableId }) => ({
         url: "/create-subscription",
         method: "POST",
-        body: { email, priceId },
+        body: { email, priceTableId },
+      }),
+    }),
+    requestPasswordReset: builder.mutation<
+      { message: string },
+      { email: string }
+    >({
+      query: credentials => ({
+        url: "/request-password-reset",
+        method: "POST",
+        body: credentials,
+      }),
+    }),
+
+    resetPassword: builder.mutation<
+      { message: string },
+      { email: string; newPassword: string; token: string }
+    >({
+      query: credentials => ({
+        url: "/reset-password",
+        method: "POST",
+        body: credentials,
       }),
     }),
   }),
@@ -91,4 +114,7 @@ export const {
   useResendEmailVerificationMutation,
   useVerifyEmailMutation,
   useCreateSubscriptionMutation,
+  useRequestPasswordResetMutation,
+  useResetPasswordMutation,
+  useLazyGetUserStatusQuery,
 } = authApi

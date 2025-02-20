@@ -1,3 +1,4 @@
+import * as React from "react"
 import { useEffect } from "react"
 
 import { useSelector } from "react-redux"
@@ -5,6 +6,17 @@ import { useNavigate } from "react-router"
 import { useCreateSubscriptionMutation } from "../../api/authApi"
 import { RootState } from "../../app/store"
 import { getEmailFromToken } from "../../utils/authUtils"
+
+declare global {
+  namespace JSX {
+    interface IntrinsicElements {
+      "stripe-pricing-table": React.DetailedHTMLProps<
+        React.HTMLAttributes<HTMLElement>,
+        HTMLElement
+      >
+    }
+  }
+}
 
 const StripeSubscriptionPage = () => {
   const navigate = useNavigate()
@@ -17,8 +29,7 @@ const StripeSubscriptionPage = () => {
     useCreateSubscriptionMutation()
 
   // const priceTableId = "prctbl_1QtCMWIHT6zjJyD5GTcSdxoj"
-  const priceTableId = "price_1QtCDyIHT6zjJyD5s00gEF7X"
-  const priceId = "price_1QtCDyIHT6zjJyD5s00gEF7X"
+  const priceTableId = "prctbl_1QtCMWIHT6zjJyD5GTcSdxoj"
   useEffect(() => {
     if (!isAuthenticated || !token) {
       navigate("/login")
@@ -37,23 +48,13 @@ const StripeSubscriptionPage = () => {
       navigate("/login")
       return
     }
-
-    // If user has no active subscription, create a new one
-    createSubscription({ email, priceId })
-      .unwrap()
-      .then(response => {
-        if (response.url) {
-          // window.location.href = response.url // Redirect to Stripe
-          console.log(response.url)
-        }
-      })
-      .catch(err => console.error("Subscription error:", err))
-  }, [isAuthenticated, token, user, createSubscription, navigate])
-
-  if (isLoading) return <p>Redirecting to Stripe...</p>
-  if (error) return <p>Failed to start subscription. Please try again.</p>
-
-  return <div>Preparing your subscription...</div>
+  })
+  return (
+    <stripe-pricing-table
+      pricing-table-id="prctbl_1QtCMWIHT6zjJyD5GTcSdxoj"
+      publishable-key="pk_test_51OCLLOIHT6zjJyD5L2ANg2yrJAyb5kyZKKE7EXZa71qSaMkuJOQnHSiEEh5h6T7EaRju241aFaCPROnzgYkFkLRf00z5wmpQJL"
+    ></stripe-pricing-table>
+  )
 }
 
 export default StripeSubscriptionPage

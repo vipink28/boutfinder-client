@@ -177,13 +177,12 @@ const Signin = () => {
             </div>
 
             <div className="text-sm">
-              <button
-                type="button"
-                onClick={() => navigate("/forgot-password")}
+              <Link
+                to="/forgot-password"
                 className="font-medium text-primary-500 hover:text-primary-500/90"
               >
                 Forgot your password?
-              </button>
+              </Link>
             </div>
           </div>
 
