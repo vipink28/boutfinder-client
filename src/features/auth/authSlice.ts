@@ -26,7 +26,7 @@ const initialState: AuthState = {
   userRole: localStorage.getItem("token")
     ? getRoleFromToken(localStorage.getItem("token")!)
     : null,
-  isLoading: false,
+  isLoading: true,
 }
 
 export const authSlice = createSlice({
@@ -35,12 +35,26 @@ export const authSlice = createSlice({
   reducers: create => ({
     setCredentials: (state, action) => {
       const { token, user } = action.payload
-      const tokenDecode = jwtDecode(token)
+
+      // Only decode if token is a valid non-empty string
+      if (token && typeof token === "string") {
+        try {
+          const tokenDecode = jwtDecode(token)
+          state.token = token
+          state.isAuthenticated = true
+          localStorage.setItem("token", token)
+          state.userRole = getRoleFromToken(token)
+        } catch (error) {
+          console.error("Invalid token during decoding:", error)
+          state.token = null
+          state.isAuthenticated = false
+          state.userRole = null
+          localStorage.removeItem("token")
+        }
+      }
+
+      // Always set user, even if token is null
       state.user = user?.user ?? user
-      state.token = token
-      state.isAuthenticated = true
-      localStorage.setItem("token", token)
-      state.userRole = getRoleFromToken(token)
       state.isLoading = false
     },
     logout: state => {

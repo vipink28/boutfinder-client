@@ -8,6 +8,7 @@ import {
   Trash2,
 } from "lucide-react"
 import { useEffect, useState } from "react"
+import Loading from "../components/global/Loading"
 import { ClubData, ClubDetails } from "../types/club"
 import { clubsApi } from "./adminApi"
 import ClubDetailsModal from "./ClubDetailsModal"
@@ -126,7 +127,7 @@ const AdminDashboard = () => {
     }
   }
 
-  if (loading) return <div className="p-4">Loading...</div>
+  if (loading) return <Loading />
   if (error) return <div className="p-4 text-red-500">{error}</div>
 
   return (

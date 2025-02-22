@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from "react-redux"
 import { useLocation, useNavigate } from "react-router"
 import { useGetUserStatusQuery } from "./api/authApi"
 import { RootState } from "./app/store"
+import Loading from "./components/global/Loading"
 import { logout } from "./features/auth/authSlice"
 import AppRouter from "./routes/AppRouter"
 
@@ -58,7 +59,7 @@ const App = () => {
     }
   }, [error, dispatch, navigate])
 
-  if (isUserLoading) return <div>Loading...</div>
+  if (isUserLoading) return <Loading />
   if (error && (!("status" in error) || error.status !== 401))
     return <div>Error fetching user status.</div>
 

@@ -24,7 +24,6 @@ const ProtectedRoute = ({
   if (isUserLoading) {
     return <Loading />
   }
-
   if (!token || !user) {
     return <Navigate to="/login" state={{ from: location }} replace />
   }
