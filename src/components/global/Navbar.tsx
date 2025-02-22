@@ -39,7 +39,7 @@ const Navbar = () => {
               <span>Search</span>
             </NavLink>
             <NavLink
-              to="/my-boxers"
+              to="/club/my-boxers"
               className={({ isActive }) =>
                 `flex items-center gap-2 ${isActive ? "text-primary-500" : "text-gray-600 hover:text-primary-500"}`
               }
@@ -48,7 +48,7 @@ const Navbar = () => {
               <span>My Boxers</span>
             </NavLink>
             <NavLink
-              to="/shows"
+              to="/club/shows"
               className={({ isActive }) =>
                 `flex items-center gap-2 ${isActive ? "text-primary-500" : "text-gray-600 hover:text-primary-500"}`
               }
@@ -57,7 +57,7 @@ const Navbar = () => {
               <span>Shows</span>
             </NavLink>
             <NavLink
-              to="/messages"
+              to="/club/messages"
               className={({ isActive }) =>
                 `flex items-center gap-2 ${isActive ? "text-primary-500" : "text-gray-600 hover:text-primary-500"}`
               }
@@ -66,7 +66,7 @@ const Navbar = () => {
               <span>Messages</span>
             </NavLink>
             <NavLink
-              to="/account"
+              to="/club/account"
               className={({ isActive }) =>
                 `flex items-center gap-2 ${isActive ? "text-primary-500" : "text-gray-600 hover:text-primary-500"}`
               }

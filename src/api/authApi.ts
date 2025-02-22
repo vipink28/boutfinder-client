@@ -1,5 +1,6 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react"
 import { RootState } from "../app/store"
+import { setCredentials, setLoading } from "../features/auth/authSlice"
 
 interface UserStatus {
   isEmailVerified: boolean
@@ -71,6 +72,17 @@ export const authApi = createApi({
       void
     >({
       query: () => "/UserStatus",
+      async onQueryStarted(_, { dispatch, queryFulfilled }) {
+        try {
+          dispatch(setLoading(true)) // Start loading
+          const { data } = await queryFulfilled
+          dispatch(setCredentials({ token: null, user: data })) // Populate user
+        } catch (err) {
+          console.error("Failed to fetch user status:", err)
+        } finally {
+          dispatch(setLoading(false)) // End loading
+        }
+      },
     }),
     createSubscription: builder.mutation<
       { url: string },

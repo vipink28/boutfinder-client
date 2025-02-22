@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from "react-redux"
 import { useLocation, useNavigate } from "react-router"
 import { useGetUserStatusQuery } from "./api/authApi"
 import { RootState } from "./app/store"
-import { logout, setCredentials } from "./features/auth/authSlice"
+import { logout } from "./features/auth/authSlice"
 import AppRouter from "./routes/AppRouter"
 
 const App = () => {
@@ -13,14 +13,10 @@ const App = () => {
   const token = useSelector((state: RootState) => state.auth.token)
   const user = useSelector((state: RootState) => state.auth.user)
   const userRole = useSelector((state: RootState) => state.auth.userRole)
+  const isUserLoading = useSelector((state: RootState) => state.auth.isLoading)
 
-  const {
-    data: userStatus,
-    isLoading,
-    error,
-  } = useGetUserStatusQuery(undefined, {
-    skip: !token || !!user,
-    // Prevent API call if user is not logged in
+  const { error } = useGetUserStatusQuery(undefined, {
+    skip: !token, // Skip if no token
   })
 
   const publicRoutes = [
@@ -32,42 +28,37 @@ const App = () => {
   ]
 
   useEffect(() => {
-    if (userStatus && token) {
-      if (!user) {
-        dispatch(setCredentials({ token, user: userStatus }))
-      }
-    }
-  }, [userStatus, dispatch, token, user])
-
-  useEffect(() => {
-    if (token && user && userRole) {
-      const isAdmin = userRole === "Admin"
-      if (isAdmin) {
-        navigate("/admin")
-      } else if (!user.isEmailVerified) {
-        navigate("/verify-email")
-      } else if (!user.clubId) {
-        navigate("/add-club")
-      } else if (!user.isClubApproved) {
-        navigate("/membership-status")
-      } else {
-        navigate("/club")
-      }
-    } else if (!token && !publicRoutes.includes(location.pathname)) {
+    if (!token && !publicRoutes.includes(location.pathname)) {
       navigate("/login")
+      return
+    }
+
+    if (location.pathname === "/" || location.pathname === "/login") {
+      if (token && user && userRole) {
+        const isAdmin = userRole === "Admin"
+        if (isAdmin) {
+          navigate("/admin")
+        } else if (!user.isEmailVerified) {
+          navigate("/verify-email")
+        } else if (!user.clubId) {
+          navigate("/add-club")
+        } else if (!user.isClubApproved) {
+          navigate("/membership-status")
+        } else {
+          navigate("/club")
+        }
+      }
     }
   }, [token, user, userRole, navigate, location.pathname])
 
   useEffect(() => {
     if (error && "status" in error && error.status === 401) {
-      if (!token) return // Prevent logout if no token exists yet
-      console.log("Error in useEffect:", error)
       dispatch(logout())
       navigate("/login")
     }
-  }, [error, dispatch, navigate, token])
+  }, [error, dispatch, navigate])
 
-  if (isLoading) return <div>Loading...</div>
+  if (isUserLoading) return <div>Loading...</div>
   if (error && (!("status" in error) || error.status !== 401))
     return <div>Error fetching user status.</div>
 

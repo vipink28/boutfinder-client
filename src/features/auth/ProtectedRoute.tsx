@@ -1,27 +1,47 @@
 import { useSelector } from "react-redux"
-import { Navigate, Outlet, useLocation } from "react-router"
+import { Navigate, useLocation } from "react-router"
 import { RootState } from "../../app/store"
+import Loading from "../../components/global/Loading"
 
 interface ProtectedRouteProps {
   children: React.ReactNode
+  requiresVerification?: boolean
+  requiresClub?: boolean
+  requiresApproval?: boolean
 }
 
-const ProtectedRoute = () => {
-  const userStatus = useSelector((state: RootState) => state.auth.user)
+const ProtectedRoute = ({
+  children,
+  requiresVerification = true,
+  requiresClub = true,
+  requiresApproval = true,
+}: ProtectedRouteProps) => {
+  const user = useSelector((state: RootState) => state.auth.user)
   const token = useSelector((state: RootState) => state.auth.token)
+  const isUserLoading = useSelector((state: RootState) => state.auth.isLoading)
   const location = useLocation()
 
-  if (!userStatus && token) return <div>Loading...</div>
+  if (isUserLoading) {
+    return <Loading />
+  }
 
-  if (!userStatus)
+  if (!token || !user) {
     return <Navigate to="/login" state={{ from: location }} replace />
+  }
 
-  if (!userStatus.isEmailVerified)
+  if (requiresVerification && !user.isEmailVerified) {
     return <Navigate to="/verify-email" replace />
-  if (!userStatus.clubId) return <Navigate to="/add-club" replace />
-  if (!userStatus.isClubApproved)
+  }
+
+  if (requiresClub && !user.clubId) {
+    return <Navigate to="/add-club" replace />
+  }
+
+  if (requiresApproval && !user.isClubApproved) {
     return <Navigate to="/membership-status" replace />
-  return <Outlet />
+  }
+
+  return <>{children}</>
 }
 
 export default ProtectedRoute
