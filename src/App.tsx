@@ -3,7 +3,6 @@ import { useDispatch, useSelector } from "react-redux"
 import { useLocation, useNavigate } from "react-router"
 import { useGetUserStatusQuery } from "./api/authApi"
 import { RootState } from "./app/store"
-import Loading from "./components/global/Loading"
 import { logout } from "./features/auth/authSlice"
 import AppRouter from "./routes/AppRouter"
 
@@ -15,6 +14,7 @@ const App = () => {
   const user = useSelector((state: RootState) => state.auth.user)
   const userRole = useSelector((state: RootState) => state.auth.userRole)
   const isUserLoading = useSelector((state: RootState) => state.auth.isLoading)
+  const localToken = localStorage.getItem("token")
 
   const { error } = useGetUserStatusQuery(undefined, {
     skip: !token, // Skip if no token
@@ -41,6 +41,8 @@ const App = () => {
           navigate("/admin")
         } else if (!user.isEmailVerified) {
           navigate("/verify-email")
+        } else if (!user.stripeSubscriptionId) {
+          navigate("/subscribe")
         } else if (!user.clubId) {
           navigate("/add-club")
         } else if (!user.isClubApproved) {
@@ -59,7 +61,7 @@ const App = () => {
     }
   }, [error, dispatch, navigate])
 
-  if (isUserLoading) return <Loading />
+  // if (isUserLoading) return <Loading />
   if (error && (!("status" in error) || error.status !== 401))
     return <div>Error fetching user status.</div>
 
